@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import logo from "../assets/images//ytu-logo.png";
 import "./AppNavbar.sass";
 
 import {
@@ -16,15 +17,9 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import {
-  MdOutlineRemoveRedEye as PreviewIcon,
   MdNightlight as DarkThemeIcon,
   MdLightMode as LightThemeIcon,
-  MdOutlineWbTwilight as IOWatchIcon,
-  MdOutlinePending as StatusIcon,
-  MdDashboardCustomize as FunctionButtonsIcon,
-  MdSwipe as MotionIcon,
   MdHome as HomeIcon,
-  MdLibraryBooks as JournalIcon,
   MdPeople as UsersIcon,
 } from "react-icons/md";
 
@@ -133,11 +128,7 @@ export default function AppNavbar() {
           })}
         >
           <Group pt={5} position="apart">
-            {/* <Image
-              src={theme.colorScheme === "dark" ? whiteLogo : logo}
-              width="100%"
-              style={opened ? { maxWidth: 47 } : {}}
-            /> */}
+            <Image src={logo} width="100%" style={{ maxWidth: 47 }} />
             {opened && (
               <ActionIcon
                 variant="default"
@@ -163,48 +154,6 @@ export default function AppNavbar() {
           label="Home"
           opened={opened}
           onClick={() => onclickHandler("/")}
-        />
-        <MainLink
-          icon={<PreviewIcon fontSize={30} />}
-          color="blue"
-          active={pathname === "/cut" || pathname.startsWith("/cut")}
-          label="Cut Preview"
-          opened={opened}
-          onClick={() => onclickHandler("/cut")}
-        />
-        <MainLink
-          icon={<FunctionButtonsIcon fontSize={30} />}
-          color="violet"
-          active={
-            pathname === "/fn-buttons" || pathname.startsWith("/fn-buttons")
-          }
-          label="Function Buttons"
-          opened={opened}
-          onClick={() => onclickHandler("/fn-buttons")}
-        />
-        <MainLink
-          icon={<StatusIcon fontSize={30} />}
-          color="lime"
-          active={pathname === "/status" || pathname.startsWith("/status")}
-          label="Runnning Status"
-          opened={opened}
-          onClick={() => onclickHandler("/status")}
-        />
-        <MainLink
-          icon={<MotionIcon fontSize={30} />}
-          color="orange"
-          active={pathname === "/motion" || pathname.startsWith("/motion")}
-          label="Motion"
-          opened={opened}
-          onClick={() => onclickHandler("/motion")}
-        />
-        <MainLink
-          icon={<JournalIcon fontSize={30} />}
-          color="pink"
-          active={pathname === "/journal" || pathname.startsWith("/journal")}
-          label="Journal"
-          opened={opened}
-          onClick={() => onclickHandler("/journal")}
         />
         <MainLink
           icon={<UsersIcon fontSize={30} />}

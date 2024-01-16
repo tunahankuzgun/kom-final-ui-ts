@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { RouterProvider, createHashRouter } from "react-router-dom";
-import { useAppSelector } from "../app/hooks";
 import "./App.sass";
 
 import {
   ColorScheme,
   ColorSchemeProvider,
-  LoadingOverlay,
   MantineProvider,
 } from "@mantine/core";
 // import Status from "src/pages/Status";
@@ -17,6 +15,7 @@ import Ws from "../utils/ApiSocket";
 import Overview from "../pages/Overview";
 import Login from "./Login";
 import Error from "../pages/Error";
+import Users from "../pages/Users";
 
 Ws.init();
 
@@ -28,6 +27,10 @@ const router = createHashRouter([
       {
         path: "/",
         element: <Overview />,
+      },
+      {
+        path: "users/*",
+        element: <Users />,
       },
       {
         path: "*",
