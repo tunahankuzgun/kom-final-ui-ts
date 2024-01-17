@@ -3,7 +3,7 @@ import "./AppOutlet.sass";
 
 import { AppShell, useMantineTheme } from "@mantine/core";
 import AppNavbar from "./AppNavbar";
-// import AppFooter from "./AppFooter";
+import AppFooter from "./AppFooter";
 
 export default function AppOutlet() {
   const theme = useMantineTheme();
@@ -22,7 +22,7 @@ export default function AppOutlet() {
       }}
       navbarOffsetBreakpoint="xs"
       navbar={<AppNavbar />}
-      //   footer={<AppFooter />}
+      footer={<AppFooter />}
       padding={0}
     >
       <div className="AppOutlet">

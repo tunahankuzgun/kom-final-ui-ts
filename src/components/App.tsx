@@ -16,6 +16,7 @@ import Overview from "../pages/Overview";
 import Login from "./Login";
 import Error from "../pages/Error";
 import Users from "../pages/Users";
+import { useAppSelector } from "../app/hooks";
 
 Ws.init();
 
@@ -41,7 +42,7 @@ const router = createHashRouter([
 ]);
 
 export default function App() {
-  const authorized = true;
+  const authorized = useAppSelector((s) => s.app.authorized);
   // const machineConnected = useAppSelector((s) => s.app.machineConnected);
   // const apiConnected = useAppSelector((s) => s.app.apiConnected);
   // const loading = useAppSelector((s) => s.app.loading);

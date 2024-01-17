@@ -11,41 +11,83 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { useCallback, useState } from "react";
+import axios from "axios";
 
 export default function Login() {
   //   const alertMessage = useAppSelector((s) => s.login.alertMessage);
   //   const loading = useAppSelector((s) => s.login.loading);
+
   const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
-      username: localStorage.getItem("username") || "",
+      email: localStorage.getItem("email") || "",
       password: "",
-      guest: localStorage.getItem("guest") === "true" || false,
     },
 
     validate: {
-      username: (value) =>
-        value.length < 2 ? "Username must have at least 2 letters" : null,
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
     },
     validateInputOnChange: true,
   });
 
-  const handleLogin = (values: {
-    username: string;
-    password: string;
-    guest: boolean;
-  }) => {
+  const handleLogin = (values: { email: string; password: string }) => {
+    const abortController = new AbortController();
     try {
-      dispatch({ type: "LOGIN_LOADING" });
-      //   sendLogin(values.username, values.password, values.guest);
-      localStorage.setItem("username", values.username);
-      localStorage.setItem("guest", String(values.guest));
-    } catch (error: any) {
-      form.setFieldError(
-        `${error.response.data.errors[0].field}` || "username",
-        error.response.data.errors[0].message
-      );
+      setLoading(true);
+      axios
+        .post(
+          "http://localhost:3333/v1/login",
+          {
+            email: values.email,
+            password: values.password,
+          },
+          {
+            signal: abortController.signal,
+            // headers: { ...ApiRequest.getAuthHeader() },
+          }
+        )
+        .then((response) => {
+          form.reset();
+          console.log("Login Successful", response.data);
+          dispatch({ type: "SET_APP_AUTHORIZED" });
+          localStorage.setItem("email", response.data.user.email);
+          localStorage.setItem("token", response.data.accessToken.token);
+          // Notify({
+          //   id: "add-user-success",
+          //   title: "User Added",
+          //   message: `User ${response.data.user.username} has been created`,
+          //   color: "lime",
+          //   autoClose: 3000,
+          //   icon: "success",
+          // });
+
+          setLoading(false);
+        })
+        .catch((error) => {
+          // form.setFieldError(
+          //   `${error.response.data.errors[0].field}` || "email",
+          //   error.response.data.errors[0].message
+          // );
+          console.error(error);
+          // Notify({
+          //   id: "add-user-fail",
+          //   title: "User Cannot Added",
+          //   message: `User failed to create: ${error.response.data.errors[0].message} at ${error.response.data.errors[0].field}`,
+          //   color: "red",
+          //   autoClose: 3000,
+          //   icon: "error",
+          // });
+          setLoading(false);
+        });
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.warn("User add axios cancelled", error.message);
+      } else {
+        console.error(error);
+      }
     }
   };
 
@@ -57,9 +99,9 @@ export default function Login() {
           <form onSubmit={form.onSubmit((values) => handleLogin(values))}>
             <TextInput
               size="md"
-              {...form.getInputProps("username")}
-              label="Username"
-              placeholder="Your username"
+              {...form.getInputProps("email")}
+              label="Email"
+              placeholder="Your email"
               autoFocus
             />
             <PasswordInput
