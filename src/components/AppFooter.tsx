@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import "./AppFooter.sass";
 import { Burger, Footer, MediaQuery, useMantineTheme } from "@mantine/core";
+import ServoState from "./ServoState";
 
 export default function AppFooter() {
   const theme = useMantineTheme();
@@ -27,6 +28,7 @@ export default function AppFooter() {
           />
         </MediaQuery>
         <div className="footer-actions">
+          <ServoState />
           {/* <MachineMode />
           <MachineState />
           <ProgramState />

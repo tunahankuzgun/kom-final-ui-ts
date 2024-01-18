@@ -12,11 +12,9 @@ import { Notifications } from "@mantine/notifications";
 import AppOutlet from "./AppOutlet";
 
 import Ws from "../utils/ApiSocket";
-import Overview from "../pages/Overview";
 import Login from "./Login";
-import Error from "../pages/Error";
-import Users from "../pages/Users";
 import { useAppSelector } from "../app/hooks";
+import { Error, Overview, Rtu, Tcp, Users } from "../pages";
 
 Ws.init();
 
@@ -29,6 +27,15 @@ const router = createHashRouter([
         path: "/",
         element: <Overview />,
       },
+      {
+        path: "rtu/*",
+        element: <Rtu />,
+      },
+      {
+        path: "tcp/*",
+        element: <Tcp />,
+      },
+
       {
         path: "users/*",
         element: <Users />,

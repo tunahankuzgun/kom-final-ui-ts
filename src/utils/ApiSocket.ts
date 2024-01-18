@@ -40,6 +40,7 @@ interface CommandHandlerProps {
 //prettier-ignore
 interface ClientToServerEvents {
   "message": (message: Prettify<SocketData>) => void;
+  "request": (message: Prettify<SocketData>) => void;
 }
 //prettier-ignore
 interface ServerToClientEvents {
@@ -49,6 +50,9 @@ interface ServerToClientEvents {
   "message": (
     message: Prettify<ReceiveData<CommandHandlerProps>>
     ) => void;
+    "request": (
+      message: Prettify<ReceiveData<CommandHandlerProps>>
+      ) => void;
 }
 
 class ApiSocket extends EventEmitter {
@@ -70,6 +74,9 @@ class ApiSocket extends EventEmitter {
       this.onStatusMessage(message)
     );
     this.io.on("message", (message: Prettify<ReceiveData<any>>) =>
+      this.onCommandMessage(message)
+    );
+    this.io.on("request", (message: Prettify<ReceiveData<any>>) =>
       this.onCommandMessage(message)
     );
   }
@@ -97,7 +104,8 @@ class ApiSocket extends EventEmitter {
     try {
       this.commandHandler[message.command][message.status!](message);
     } catch (error) {
-      console.error(message.command, error, message);
+      //TODO handle error
+      // console.error(message.command, error, message);
     }
   }
 

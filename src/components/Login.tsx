@@ -1,23 +1,19 @@
 import "./Login.sass";
-
-// import { sendLogin } from "../app/actions/login";
-
 import {
   TextInput,
   PasswordInput,
   Paper,
   Container,
   Button,
+  Image,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { useCallback, useState } from "react";
+import { useAppDispatch } from "../app/hooks";
+import { useState } from "react";
 import axios from "axios";
+import logo from "../assets/images/yildiz-logo.png";
 
 export default function Login() {
-  //   const alertMessage = useAppSelector((s) => s.login.alertMessage);
-  //   const loading = useAppSelector((s) => s.login.loading);
-
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
 
@@ -93,7 +89,7 @@ export default function Login() {
 
   return (
     <div className="Login">
-      {/* <div className="alert">{alertMessage}</div> */}
+      <Image width={500} fit="contain" src={logo} />
       <Container size={350} my={20} style={{ width: "100%" }}>
         <Paper shadow="md" mt={20} radius="md">
           <form onSubmit={form.onSubmit((values) => handleLogin(values))}>
@@ -113,7 +109,7 @@ export default function Login() {
             />
 
             <Button
-              //   loading={loading}
+              loading={loading}
               color="cyan"
               size="md"
               type="submit"

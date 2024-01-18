@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import NavbarReducer from "./reducers/navbar";
 import AppReducer from "./reducers/app";
+import LoginReducer from "./reducers/login";
 
 export const store = configureStore({
   reducer: {
-    navbar: NavbarReducer,
     app: AppReducer,
+    login: LoginReducer,
+    navbar: NavbarReducer,
   },
 });
 // Infer the `RootState` and `AppDispatch` types from the store itself

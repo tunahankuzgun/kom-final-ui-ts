@@ -19,13 +19,15 @@ import {
 import {
   MdNightlight as DarkThemeIcon,
   MdLightMode as LightThemeIcon,
+  MdOutlineCastConnected as RtuIcon,
+  MdOutlineConnectedTv as TcpIcon,
   MdHome as HomeIcon,
   MdPeople as UsersIcon,
 } from "react-icons/md";
 
 import { useMediaQuery } from "@mantine/hooks";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-// import { accessLevels } from "src/utils/ApiRequest";
+import ProfileMenu from "./ProfileMenu";
 
 interface MainLinkProps {
   icon: React.ReactNode;
@@ -91,7 +93,6 @@ export default function AppNavbar() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const matches = useMediaQuery("(max-width: 575px)");
-  //   const defaultGroup = useAppSelector((s) => s.groups.defaultGroup);
 
   const opened = useAppSelector((s) => s.navbar.opened);
 
@@ -99,7 +100,6 @@ export default function AppNavbar() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { pathname } = useLocation();
 
-  //   const accessLevel = useAppSelector((s) => s.account.accessLevel);
   const onclickHandler = (path: string) => {
     navigate(path);
     dispatch({ type: "SET_NAVBAR_OPEN", payload: false });
@@ -156,6 +156,22 @@ export default function AppNavbar() {
           onClick={() => onclickHandler("/")}
         />
         <MainLink
+          icon={<RtuIcon fontSize={30} />}
+          color="blue"
+          active={pathname === "/rtu" || pathname.startsWith("/rtu")}
+          label="RTU"
+          opened={opened}
+          onClick={() => onclickHandler("/rtu")}
+        />
+        <MainLink
+          icon={<TcpIcon fontSize={30} />}
+          color="teal"
+          active={pathname === "/tcp" || pathname.startsWith("/tcp")}
+          label="TCP"
+          opened={opened}
+          onClick={() => onclickHandler("/tcp")}
+        />
+        <MainLink
           icon={<UsersIcon fontSize={30} />}
           color="grape"
           active={pathname === "/users" || pathname.startsWith("/users")}
@@ -164,9 +180,9 @@ export default function AppNavbar() {
           onClick={() => onclickHandler("/users")}
         />
       </Navbar.Section>
-      {/* <Navbar.Section mb={matches ? 15 : "unset"}>
+      <Navbar.Section mb={matches ? 15 : "unset"}>
         <ProfileMenu />
-      </Navbar.Section> */}
+      </Navbar.Section>
       <Navbar.Section
         style={{
           display: "flex",
