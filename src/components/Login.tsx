@@ -12,6 +12,7 @@ import { useAppDispatch } from "../app/hooks";
 import { useState } from "react";
 import axios from "axios";
 import logo from "../assets/images/yildiz-logo.png";
+import Notify from "../utils/Notify";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -46,20 +47,21 @@ export default function Login() {
           }
         )
         .then((response) => {
-          form.reset();
           console.log("Login Successful", response.data);
+
           dispatch({ type: "SET_APP_AUTHORIZED" });
+
           localStorage.setItem("email", response.data.user.email);
           localStorage.setItem("token", response.data.accessToken.token);
-          // Notify({
-          //   id: "add-user-success",
-          //   title: "User Added",
-          //   message: `User ${response.data.user.username} has been created`,
-          //   color: "lime",
-          //   autoClose: 3000,
-          //   icon: "success",
-          // });
 
+          Notify({
+            id: "login-success",
+            title: "Login Successful",
+            message: `Logged in as ${response.data.user.email} successfully.`,
+            color: "lime",
+            autoClose: 3000,
+            icon: "success",
+          });
           setLoading(false);
         })
         .catch((error) => {
@@ -68,14 +70,14 @@ export default function Login() {
           //   error.response.data.errors[0].message
           // );
           console.error(error);
-          // Notify({
-          //   id: "add-user-fail",
-          //   title: "User Cannot Added",
-          //   message: `User failed to create: ${error.response.data.errors[0].message} at ${error.response.data.errors[0].field}`,
-          //   color: "red",
-          //   autoClose: 3000,
-          //   icon: "error",
-          // });
+          Notify({
+            id: "login-fail",
+            title: "Login Failed",
+            message: `Failed to login.`,
+            color: "red",
+            autoClose: 3000,
+            icon: "error",
+          });
           setLoading(false);
         });
     } catch (error) {

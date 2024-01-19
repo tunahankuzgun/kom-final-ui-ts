@@ -7,6 +7,7 @@ import {
   MdOutlineConnectedTv as TcpIcon,
   MdPeople as UsersIcon,
 } from "react-icons/md";
+import { sendEmergencyStopProgramRtu } from "../../app/actions/servo";
 
 export default function Overview() {
   const navigate = useNavigate();
@@ -14,7 +15,14 @@ export default function Overview() {
   return (
     <ScrollArea>
       <div className="Page Overview">
-        <PageTitle title={"Overview"} />
+        <PageTitle
+          title={"Overview"}
+          children={
+            <Button onClick={() => sendEmergencyStopProgramRtu()} color="red">
+              EMERGENCY STOP!
+            </Button>
+          }
+        />
         <div className="content">
           <SimpleGrid
             breakpoints={[

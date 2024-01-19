@@ -2,7 +2,7 @@ import { MdOutlineModeEditOutline as ProgramStateIcon } from "react-icons/md";
 import { ThemeIcon, Menu, Button, MediaQuery, ActionIcon } from "@mantine/core";
 // import { accessLevels } from "src/utils/ApiRequest";
 // import Notify from "src/utils/Notify";
-import { sendStartProgram, sendStopProgram } from "../app/actions/servo";
+import { sendStartProgramRtu, sendStopProgramRtu } from "../app/actions/servo";
 
 export default function ServoState() {
   return (
@@ -78,7 +78,7 @@ export default function ServoState() {
               textAlign: "center",
               padding: theme.spacing.md,
             })}
-            onClick={() => sendStartProgram()}
+            onClick={() => sendStartProgramRtu()}
           >
             Start Program
           </Menu.Item>
@@ -87,7 +87,7 @@ export default function ServoState() {
               textAlign: "center",
               padding: theme.spacing.md,
             })}
-            onClick={() => sendStopProgram()}
+            onClick={() => sendStopProgramRtu()}
           >
             Stop Program
           </Menu.Item>
