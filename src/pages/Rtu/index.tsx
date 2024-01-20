@@ -29,6 +29,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import GaugeComponent from "react-gauge-component";
 
 export default function Rtu() {
   const form = useForm({
@@ -47,13 +48,13 @@ export default function Rtu() {
 
   const [confirmationModal, setConfirmationModal] = useState(false);
 
-  const direction = useAppSelector((s) => s.servo.direction);
+  const direction = useAppSelector((s) => s.servo.rtuDirection);
   const dispatch = useAppDispatch();
 
   function handleChangeRotation() {
     direction === "cw" ? sendSetCounterClockwiseRtu() : sendSetClockwiseRtu();
     dispatch({
-      type: "SET_DIRECTION",
+      type: "SET_RTU_DIRECTION",
       payload: direction === "cw" ? "ccw" : "cw",
     });
     setConfirmationModal(false);
@@ -141,7 +142,7 @@ export default function Rtu() {
           </Button>
         </SimpleGrid>
         <form
-          id="one-shot-form"
+          id="rtu-form"
           style={{
             display: "flex",
             flexDirection: "row",
@@ -305,7 +306,45 @@ export default function Rtu() {
               </div>
             </Group>
           </div>
-          <div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ width: 400 }}>
+              <GaugeComponent
+                arc={{
+                  subArcs: [
+                    {
+                      limit: 20,
+                      color: "#5BE12C",
+
+                      showTick: true,
+                    },
+                    {
+                      limit: 40,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 60,
+                      color: "#F58B19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 100,
+                      color: "#EA4228",
+                      showTick: true,
+                    },
+                  ],
+                }}
+                value={50}
+              />
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginLeft: "350px",
+            }}
+          >
             {direction === "cw"
               ? "Servo rotating clockwise"
               : "Servo rotating counter clockwise"}
@@ -316,8 +355,6 @@ export default function Rtu() {
               size="xl"
               checked={direction === "cw"}
             />
-            {/* <Button onClick={() => sendSetClockwiseRtu()}> CW</Button>
-            <Button onClick={() => sendSetCounterClockwiseRtu()}> CCW</Button> */}
           </div>
         </form>
       </div>

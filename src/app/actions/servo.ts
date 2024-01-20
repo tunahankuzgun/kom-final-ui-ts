@@ -363,3 +363,20 @@ export function sendReadCurrentTcp() {
     icon: "success",
   });
 }
+
+export function sendHomingTcp() {
+  Ws.send("message", {
+    command: "homing",
+    value: {},
+    connectionType: "tcp",
+    accessToken: token,
+  });
+  Notify({
+    id: "homing-success-tcp",
+    title: "Homing Successful",
+    message: `Homing successful`,
+    color: "lime",
+    autoClose: 3000,
+    icon: "success",
+  });
+}
