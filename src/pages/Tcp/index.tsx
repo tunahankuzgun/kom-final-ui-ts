@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import {
   sendEmergencyStopProgramRtu,
+  sendEmergencyStopProgramTcp,
   sendHomingTcp,
   sendResetProgramTcp,
   sendSetClockwiseTcp,
@@ -80,13 +81,18 @@ export default function Tcp() {
     setConfirmationModal(false);
   }
 
-  console.log(data.length);
   return (
     <div className="Page Tcp">
       <PageTitle
         title={"TCP"}
         children={
-          <Button onClick={() => sendEmergencyStopProgramRtu()} color="red">
+          <Button
+            onClick={() => {
+              sendEmergencyStopProgramRtu();
+              sendEmergencyStopProgramTcp();
+            }}
+            color="red"
+          >
             EMERGENCY STOP!
           </Button>
         }

@@ -13,6 +13,7 @@ import { useState } from "react";
 import axios from "axios";
 import logo from "../assets/images/yildiz-logo.png";
 import Notify from "../utils/Notify";
+import apiRequest from "../utils/ApiRequest";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -36,14 +37,13 @@ export default function Login() {
       setLoading(true);
       axios
         .post(
-          "http://localhost:3333/v1/login",
+          "http://64.226.68.129:3333/v1/login",
           {
             email: values.email,
             password: values.password,
           },
           {
             signal: abortController.signal,
-            // headers: { ...ApiRequest.getAuthHeader() },
           }
         )
         .then((response) => {
@@ -52,7 +52,7 @@ export default function Login() {
           dispatch({ type: "SET_APP_AUTHORIZED" });
 
           localStorage.setItem("email", response.data.user.email);
-          localStorage.setItem("token", response.data.accessToken.token);
+          apiRequest.setToken(response.data.accessToken.token);
 
           Notify({
             id: "login-success",
@@ -65,10 +65,6 @@ export default function Login() {
           setLoading(false);
         })
         .catch((error) => {
-          // form.setFieldError(
-          //   `${error.response.data.errors[0].field}` || "email",
-          //   error.response.data.errors[0].message
-          // );
           console.error(error);
           Notify({
             id: "login-fail",

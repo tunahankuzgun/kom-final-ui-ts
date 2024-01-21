@@ -17,6 +17,7 @@ import {
 } from "react-icons/vsc";
 import {
   sendEmergencyStopProgramRtu,
+  sendEmergencyStopProgramTcp,
   sendResetProgramRtu,
   sendSetClockwiseRtu,
   sendSetCounterClockwiseRtu,
@@ -64,7 +65,13 @@ export default function Rtu() {
       <PageTitle
         title={"RTU"}
         children={
-          <Button onClick={() => sendEmergencyStopProgramRtu()} color="red">
+          <Button
+            onClick={() => {
+              sendEmergencyStopProgramRtu();
+              sendEmergencyStopProgramTcp();
+            }}
+            color="red"
+          >
             EMERGENCY STOP!
           </Button>
         }

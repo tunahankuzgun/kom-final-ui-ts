@@ -7,7 +7,10 @@ import {
   MdOutlineConnectedTv as TcpIcon,
   MdPeople as UsersIcon,
 } from "react-icons/md";
-import { sendEmergencyStopProgramRtu } from "../../app/actions/servo";
+import {
+  sendEmergencyStopProgramRtu,
+  sendEmergencyStopProgramTcp,
+} from "../../app/actions/servo";
 
 export default function Overview() {
   const navigate = useNavigate();
@@ -18,7 +21,13 @@ export default function Overview() {
         <PageTitle
           title={"Overview"}
           children={
-            <Button onClick={() => sendEmergencyStopProgramRtu()} color="red">
+            <Button
+              onClick={() => {
+                sendEmergencyStopProgramRtu();
+                sendEmergencyStopProgramTcp();
+              }}
+              color="red"
+            >
               EMERGENCY STOP!
             </Button>
           }

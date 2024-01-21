@@ -7,7 +7,6 @@ import {
   ColorSchemeProvider,
   MantineProvider,
 } from "@mantine/core";
-// import Status from "src/pages/Status";
 import { Notifications } from "@mantine/notifications";
 import AppOutlet from "./AppOutlet";
 
@@ -50,9 +49,6 @@ const router = createHashRouter([
 
 export default function App() {
   const authorized = useAppSelector((s) => s.app.authorized);
-  // const machineConnected = useAppSelector((s) => s.app.machineConnected);
-  // const apiConnected = useAppSelector((s) => s.app.apiConnected);
-  // const loading = useAppSelector((s) => s.app.loading);
 
   const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
   const toggleColorScheme = (value?: ColorScheme) =>
