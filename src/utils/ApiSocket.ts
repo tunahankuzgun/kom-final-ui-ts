@@ -1,5 +1,6 @@
 import EventEmitter from "events";
 import { io, Socket } from "socket.io-client";
+import { store } from "../app/store";
 
 export interface SocketData {
   command: string;
@@ -61,7 +62,7 @@ class ApiSocket extends EventEmitter {
   constructor() {
     super();
 
-    this.io = io("127.0.0.1:3333", {
+    this.io = io("http://172.30.16.42:3333/", {
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
@@ -74,10 +75,10 @@ class ApiSocket extends EventEmitter {
       this.onStatusMessage(message)
     );
     this.io.on("message", (message: Prettify<ReceiveData<any>>) =>
-      this.onCommandMessage(message)
-    );
-    this.io.on("request", (message: Prettify<ReceiveData<any>>) =>
-      this.onCommandMessage(message)
+      // this.onCommandMessage(message)
+      JSON.parse(message.data).type === "rtu"
+        ? this.onRtuConnectionStatus(message)
+        : this.onTcpConnectionStatus(message)
     );
   }
 
@@ -86,6 +87,80 @@ class ApiSocket extends EventEmitter {
   onConnect() {
     console.log("%capisocket connected", "color: green");
     // sendCheckToken();
+  }
+
+  onTcpConnectionStatus(message: Prettify<ReceiveData<any>>) {
+    this.tcpHandler(JSON.parse(message.data));
+  }
+  onRtuConnectionStatus(message: Prettify<ReceiveData<any>>) {
+    this.rtuHandler(JSON.parse(message.data));
+  }
+
+  tcpHandler(message: any) {
+    store.getState().tcp.tcpPosition.length < 10
+      ? store.dispatch({
+          type: "SET_TCP_POSITION",
+          payload: [
+            ...store.getState().tcp.tcpPosition,
+            message.values.position,
+          ],
+        })
+      : store.dispatch({
+          type: "SET_TCP_POSITION",
+          payload: [
+            ...store.getState().tcp.tcpPosition.slice(1),
+            message.values.position,
+          ],
+        });
+
+    // console.log(message);
+    store.dispatch({
+      type: "SET_TCP_DIRECTION",
+      payload:
+        message.values.rotation === 1
+          ? "cw"
+          : message.values.rotation === 0
+          ? "ccw"
+          : "unnown",
+    });
+    store.dispatch({
+      type: "SET_TCP_ERROR",
+      payload: message.values.error,
+    });
+
+    store.dispatch({
+      type: "SET_TCP_TORQUE",
+      payload: message.values.torque,
+    });
+    store.dispatch({
+      type: "SET_TCP_VELOCITY",
+      payload: message.values.velocity,
+    });
+  }
+
+  rtuHandler(message: any) {
+    // console.log(message);
+    store.dispatch({
+      type: "SET_RTU_DIRECTION",
+      payload:
+        message.values.rotation === 0
+          ? "idle"
+          : message.values.rotation === 1
+          ? "cw"
+          : "ccw",
+    });
+    store.dispatch({
+      type: "SET_RTU_CURRENT",
+      payload: message.values.current,
+    });
+    store.dispatch({
+      type: "SET_RTU_FREQUENCY",
+      payload: message.values.outFreq,
+    });
+    store.dispatch({
+      type: "SET_RTU_TORQUE",
+      payload: message.values.torque,
+    });
   }
 
   onDisconnect(reason: string) {
@@ -103,9 +178,9 @@ class ApiSocket extends EventEmitter {
   onCommandMessage(message: Prettify<ReceiveData<any>>) {
     try {
       this.commandHandler[message.command][message.status!](message);
+      console.log(message);
     } catch (error) {
-      //TODO handle error
-      // console.error(message.command, error, message);
+      console.error(message.command, error, message);
     }
   }
 

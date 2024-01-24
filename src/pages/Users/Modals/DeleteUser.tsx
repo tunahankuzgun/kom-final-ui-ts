@@ -14,7 +14,7 @@ export default function DeleteUser() {
       const abortController = new AbortController();
 
       axios
-        .delete(`http://64.226.68.129:3333/v1/users/${id}`, {
+        .delete(`http://localhost:3333/v1/users/${id}`, {
           signal: abortController.signal,
           headers: { ...ApiRequest.getAuthHeader() },
         })

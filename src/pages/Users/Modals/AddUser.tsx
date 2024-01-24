@@ -47,7 +47,7 @@ export default function AddUser() {
         setLoading(true);
         axios
           .post(
-            "http://64.226.68.129:3333/v1/register",
+            "http://localhost:3333/v1/register",
             {
               email: values.email,
               password: values.password,

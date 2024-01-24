@@ -52,7 +52,7 @@ export default function EditUser() {
       try {
         setLoading(true);
         await axios
-          .get(`http://64.226.68.129:3333/v1/users/${id}`, {
+          .get(`http://localhost:3333/v1/users/${id}`, {
             signal: abortController.signal,
             headers: { ...ApiRequest.getAuthHeader() },
           })
@@ -86,7 +86,7 @@ export default function EditUser() {
       try {
         await axios
           .patch(
-            `http://64.226.68.129:3333/v1/users/${id}`,
+            `http://localhost:3333/v1/users/${id}`,
             {
               email: values.email,
               password: values.password,

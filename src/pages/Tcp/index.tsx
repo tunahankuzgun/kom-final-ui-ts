@@ -17,14 +17,20 @@ import {
   sendResetProgramTcp,
   sendSetClockwiseTcp,
   sendSetCounterClockwiseTcp,
-  sendSetFrequencyTcp,
   sendSetTorqueTcp,
   sendSetVelocityTcp,
   sendStartProgramTcp,
   sendStopProgramTcp,
 } from "../../app/actions/servo";
-import { XAxis, YAxis, Tooltip, ReferenceLine, Area } from "recharts";
-import { useEffect, useRef, useState } from "react";
+import {
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  Area,
+  CartesianGrid,
+} from "recharts";
+import { useRef, useState } from "react";
 import { AreaChart } from "recharts";
 import {
   VscDebugStart as StartIcon,
@@ -33,12 +39,12 @@ import {
   VscHome as HomeIcon,
 } from "react-icons/vsc";
 import { useForm } from "@mantine/form";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppSelector } from "../../app/hooks";
+import GaugeComponent from "react-gauge-component";
 
 export default function Tcp() {
   const form = useForm({
     initialValues: {
-      frequency: 3.5,
       velocity: 15,
       torque: 100,
     },
@@ -46,38 +52,33 @@ export default function Tcp() {
       // email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
     },
   });
-  const frequencyHandlers = useRef<NumberInputHandlers>();
+
   const velocityHandlers = useRef<NumberInputHandlers>();
   const torqueHandlers = useRef<NumberInputHandlers>();
 
   const [confirmationModal, setConfirmationModal] = useState(false);
 
-  const direction = useAppSelector((s) => s.servo.tcpDirection);
-  const dispatch = useAppDispatch();
+  const direction = useAppSelector((s) => s.tcp.tcpDirection);
+  const position = useAppSelector((s) => s.tcp.tcpPosition);
+  const velocity = useAppSelector((s) => s.tcp.tcpVelocity);
+  const torque = useAppSelector((s) => s.tcp.tcpTorque);
 
-  const [data, setData] = useState([{ pos: 0 }]);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (data.length > 5) {
-        setData((prev) => {
-          prev.shift();
-          return [...prev, { pos: Math.random() * 100 }];
-        });
-      } else {
-        setData((prev) => {
-          return [...prev, { pos: Math.random() * 100 }];
-        });
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [data]);
+  // useEffect(() => {
+  //   if (data.length > 3) {
+  //     setData((prev) => {
+  //       prev.shift();
+  //       return [...prev, { pos: position }];
+  //     });
+  //   } else {
+  //     setData((prev) => {
+  //       return [...prev, { pos: position }];
+  //     });
+  //   }
+  //   console.log(data);
+  // }, []);
 
   function handleChangeRotation() {
     direction === "cw" ? sendSetCounterClockwiseTcp() : sendSetClockwiseTcp();
-    dispatch({
-      type: "SET_TCP_DIRECTION",
-      payload: direction === "cw" ? "ccw" : "cw",
-    });
     setConfirmationModal(false);
   }
 
@@ -191,10 +192,9 @@ export default function Tcp() {
               flexDirection: "column",
               alignItems: "flex-start",
               justifyContent: "space-around",
-              height: "155px",
+              height: "104px",
             }}
           >
-            <div>Frequency:</div>
             <div>Velocity:</div>
             <div>Torque:</div>
           </div>
@@ -207,52 +207,6 @@ export default function Tcp() {
               marginLeft: "20px",
             }}
           >
-            <Group grow mt={10} spacing={5}>
-              <div style={{ display: "flex" }}>
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => frequencyHandlers.current?.decrement()}
-                  mr={15}
-                >
-                  –
-                </ActionIcon>
-                <NumberInput
-                  size="md"
-                  style={{ flex: 1 }}
-                  rightSection={<span>Hz</span>}
-                  hideControls
-                  decimalSeparator="."
-                  precision={1}
-                  max={50}
-                  min={0}
-                  handlersRef={frequencyHandlers}
-                  step={5}
-                  styles={{
-                    input: { textAlign: "center" },
-                    rightSection: { width: 60 },
-                  }}
-                  {...form.getInputProps("frequency")}
-                />
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => frequencyHandlers.current?.increment()}
-                  ml={15}
-                >
-                  +
-                </ActionIcon>
-                <ActionIcon
-                  size={42}
-                  variant="outline"
-                  color="green"
-                  onClick={() => sendSetFrequencyTcp(form.values.frequency)}
-                  ml={15}
-                >
-                  <StartIcon size={30} />
-                </ActionIcon>
-              </div>
-            </Group>
             <Group grow mt={10} spacing={5}>
               <div style={{ display: "flex" }}>
                 <ActionIcon
@@ -341,54 +295,165 @@ export default function Tcp() {
                 </ActionIcon>
               </div>
             </Group>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ width: 400 }}>
-              <AreaChart
-                width={730}
-                height={250}
-                data={data}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="name" />
-                <YAxis domain={["auto", "auto"]} label={"Pos"} />
-                <ReferenceLine ifOverflow="extendDomain" y={0} stroke="red" />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="pos"
-                  stroke="#8884d8"
-                  fillOpacity={1}
-                  fill="url(#colorUv)"
-                />
-              </AreaChart>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                flex: 1,
+              }}
+            >
+              {direction === "cw"
+                ? "Servo rotating clockwise"
+                : "Servo rotating counter clockwise"}
+              <Switch
+                onClick={() => setConfirmationModal(true)}
+                color="lime"
+                ml={10}
+                size="xl"
+                checked={direction === "cw"}
+              />
             </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginLeft: "350px",
-            }}
-          >
-            {direction === "cw"
-              ? "Servo rotating clockwise"
-              : "Servo rotating counter clockwise"}
-            <Switch
-              onClick={() => setConfirmationModal(true)}
-              color="lime"
-              ml={10}
-              size="xl"
-              checked={direction === "cw"}
-            />
+          <div style={{ display: "flex", marginTop: 30 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div>Velocity</div>
+              <GaugeComponent
+                key="velocity"
+                id="velocity"
+                arc={{
+                  subArcs: [
+                    {
+                      limit: 200,
+                      color: "#5BE12C",
+
+                      showTick: true,
+                    },
+                    {
+                      limit: 400,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 600,
+                      color: "#F58B19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 1000,
+                      color: "#EA4228",
+                      showTick: true,
+                    },
+                  ],
+                }}
+                value={velocity}
+                minValue={0}
+                maxValue={1000}
+                labels={{
+                  valueLabel: { formatTextValue: (value) => value + "A" },
+                }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div>Torque</div>
+              <GaugeComponent
+                key="torque"
+                id="torque"
+                type="semicircle"
+                pointer={{
+                  color: "#345243",
+                  length: 0.8,
+                  width: 15,
+                }}
+                arc={{
+                  width: 0.2,
+                  padding: 0.005,
+                  cornerRadius: 1,
+                  subArcs: [
+                    {
+                      limit: -400,
+                      color: "#EA4228",
+                      showTick: true,
+                    },
+                    {
+                      limit: -200,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 0,
+                      color: "#5BE12C",
+                      showTick: true,
+                    },
+                    {
+                      limit: 200,
+                      color: "#5BE12C",
+                      showTick: true,
+                    },
+                    {
+                      limit: 400,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      color: "#EA4228",
+                    },
+                  ],
+                }}
+                value={torque}
+                minValue={-600}
+                maxValue={600}
+                labels={{
+                  valueLabel: { formatTextValue: (value) => value + "N/m" },
+                }}
+              />
+            </div>
           </div>
         </form>
+        <div style={{ width: 400 }}>
+          <AreaChart
+            width={730}
+            height={250}
+            data={position}
+            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="name" />
+            <CartesianGrid strokeDasharray="3 3" />
+            <YAxis domain={["auto", "auto"]} label={"Pos"} />
+            <ReferenceLine ifOverflow="extendDomain" y={100} />
+            <ReferenceLine ifOverflow="extendDomain" y={0} stroke="red" />
+            <ReferenceLine ifOverflow="extendDomain" y={-100} />
+            <Tooltip />
+            <Area
+              type="monotone"
+              dataKey="pos"
+              stroke="#8884d8"
+              fillOpacity={1}
+              fill="url(#colorUv)"
+              isAnimationActive={false}
+            />
+          </AreaChart>
+        </div>
       </div>
     </div>
   );

@@ -40,7 +40,7 @@ export default function Users() {
     async function fetchUsers() {
       try {
         await axios
-          .get("http://64.226.68.129:3333/v1/users", {
+          .get("http://172.30.16.42::3333/v1/users", {
             signal: abortController.signal,
             headers: { ...apiRequest.getAuthHeader() },
           })

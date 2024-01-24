@@ -22,42 +22,38 @@ import {
   sendSetClockwiseRtu,
   sendSetCounterClockwiseRtu,
   sendSetFrequencyRtu,
-  sendSetTorqueRtu,
-  sendSetVelocityRtu,
   sendStartProgramRtu,
   sendStopProgramRtu,
 } from "../../app/actions/servo";
 import { useForm } from "@mantine/form";
 import { useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppSelector } from "../../app/hooks";
 import GaugeComponent from "react-gauge-component";
 
 export default function Rtu() {
   const form = useForm({
     initialValues: {
       frequency: 3.5,
-      velocity: 15,
-      torque: 100,
     },
     validate: {
       // email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
     },
   });
   const frequencyHandlers = useRef<NumberInputHandlers>();
-  const velocityHandlers = useRef<NumberInputHandlers>();
-  const torqueHandlers = useRef<NumberInputHandlers>();
 
   const [confirmationModal, setConfirmationModal] = useState(false);
 
-  const direction = useAppSelector((s) => s.servo.rtuDirection);
-  const dispatch = useAppDispatch();
+  const direction = useAppSelector((s) => s.rtu.rtuDirection);
+  const rtuCurrent = useAppSelector((s) => s.rtu.current);
+  const rtuFrequency = useAppSelector((s) => s.rtu.frequency);
+  const rtuTorque = useAppSelector((s) => s.rtu.torque);
 
   function handleChangeRotation() {
-    direction === "cw" ? sendSetCounterClockwiseRtu() : sendSetClockwiseRtu();
-    dispatch({
-      type: "SET_RTU_DIRECTION",
-      payload: direction === "cw" ? "ccw" : "cw",
-    });
+    direction === "cw"
+      ? sendSetCounterClockwiseRtu()
+      : direction === "ccw"
+      ? sendSetClockwiseRtu()
+      : console.log("idle");
     setConfirmationModal(false);
   }
   return (
@@ -152,7 +148,7 @@ export default function Rtu() {
           id="rtu-form"
           style={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             marginTop: "30px",
           }}
         >
@@ -162,17 +158,15 @@ export default function Rtu() {
               flexDirection: "column",
               alignItems: "flex-start",
               justifyContent: "space-around",
-              height: "155px",
+              height: "52px",
             }}
           >
             <div>Frequency:</div>
-            <div>Velocity:</div>
-            <div>Torque:</div>
           </div>
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
               alignItems: "flex-start",
               minWidth: "550px",
               marginLeft: "20px",
@@ -224,144 +218,179 @@ export default function Rtu() {
                 </ActionIcon>
               </div>
             </Group>
-            <Group grow mt={10} spacing={5}>
-              <div style={{ display: "flex" }}>
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => velocityHandlers.current?.decrement()}
-                  mr={15}
-                >
-                  –
-                </ActionIcon>
-                <NumberInput
-                  size="md"
-                  style={{ flex: 1 }}
-                  hideControls
-                  handlersRef={velocityHandlers}
-                  rightSection={<span>%</span>}
-                  max={100}
-                  min={1}
-                  step={5}
-                  styles={{
-                    input: { textAlign: "center" },
-                    rightSection: { width: 60 },
-                  }}
-                  {...form.getInputProps("velocity")}
-                />
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => velocityHandlers.current?.increment()}
-                  ml={15}
-                >
-                  +
-                </ActionIcon>
-                <ActionIcon
-                  size={42}
-                  variant="outline"
-                  color="green"
-                  onClick={() => sendSetVelocityRtu(form.values.velocity)}
-                  ml={15}
-                >
-                  <StartIcon size={30} />
-                </ActionIcon>
-              </div>
-            </Group>
-            <Group grow mt={10} spacing={5}>
-              <div style={{ display: "flex" }}>
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => torqueHandlers.current?.decrement()}
-                  mr={15}
-                >
-                  –
-                </ActionIcon>
-                <NumberInput
-                  size="md"
-                  hideControls
-                  style={{ flex: 1 }}
-                  handlersRef={torqueHandlers}
-                  rightSection={<span>Nm</span>}
-                  max={500}
-                  min={10}
-                  step={25}
-                  styles={{
-                    input: { textAlign: "center" },
-                    rightSection: { width: 60 },
-                  }}
-                  {...form.getInputProps("torque")}
-                />
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => torqueHandlers.current?.increment()}
-                  ml={15}
-                >
-                  +
-                </ActionIcon>
-                <ActionIcon
-                  size={42}
-                  variant="outline"
-                  color="green"
-                  onClick={() => sendSetTorqueRtu(form.values.torque)}
-                  ml={15}
-                >
-                  <StartIcon size={30} />
-                </ActionIcon>
-              </div>
-            </Group>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                flex: 1,
+              }}
+            >
+              {direction === "cw"
+                ? "Servo rotating clockwise"
+                : "Servo rotating counter clockwise"}
+              <Switch
+                disabled={direction === "idle"}
+                onClick={() => setConfirmationModal(true)}
+                color="lime"
+                ml={10}
+                size="xl"
+                checked={direction === "cw"}
+              />
+            </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ width: 400 }}>
+          <div style={{ display: "flex", marginTop: 30 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div>Current</div>
               <GaugeComponent
+                key="current"
+                id="current"
                 arc={{
                   subArcs: [
                     {
-                      limit: 20,
+                      limit: 200,
                       color: "#5BE12C",
 
                       showTick: true,
                     },
                     {
-                      limit: 40,
+                      limit: 400,
                       color: "#F5CD19",
                       showTick: true,
                     },
                     {
-                      limit: 60,
+                      limit: 600,
                       color: "#F58B19",
                       showTick: true,
                     },
                     {
-                      limit: 100,
+                      limit: 1000,
                       color: "#EA4228",
                       showTick: true,
                     },
                   ],
                 }}
-                value={50}
+                value={rtuCurrent}
+                minValue={0}
+                maxValue={1000}
+                labels={{
+                  valueLabel: { formatTextValue: (value) => value + "A" },
+                }}
               />
             </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginLeft: "350px",
-            }}
-          >
-            {direction === "cw"
-              ? "Servo rotating clockwise"
-              : "Servo rotating counter clockwise"}
-            <Switch
-              onClick={() => setConfirmationModal(true)}
-              color="lime"
-              ml={10}
-              size="xl"
-              checked={direction === "cw"}
-            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div>Frequency</div>
+              <GaugeComponent
+                key="frequency"
+                id="frequency"
+                arc={{
+                  subArcs: [
+                    {
+                      limit: 1000,
+                      color: "#5BE12C",
+
+                      showTick: true,
+                    },
+                    {
+                      limit: 2000,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 3000,
+                      color: "#F58B19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 5000,
+                      color: "#EA4228",
+                      showTick: true,
+                    },
+                  ],
+                }}
+                value={rtuFrequency}
+                minValue={0}
+                maxValue={5000}
+                labels={{
+                  valueLabel: { formatTextValue: (value) => value + "Hz" },
+                }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div>Torque</div>
+              <GaugeComponent
+                key="torque"
+                id="torque"
+                type="semicircle"
+                pointer={{
+                  color: "#345243",
+                  length: 0.8,
+                  width: 15,
+                  // elastic: true,
+                }}
+                arc={{
+                  width: 0.2,
+                  padding: 0.005,
+                  cornerRadius: 1,
+                  subArcs: [
+                    {
+                      limit: -400,
+                      color: "#EA4228",
+                      showTick: true,
+                    },
+                    {
+                      limit: -200,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      limit: 0,
+                      color: "#5BE12C",
+                      showTick: true,
+                    },
+                    {
+                      limit: 200,
+                      color: "#5BE12C",
+                      showTick: true,
+                    },
+                    {
+                      limit: 400,
+                      color: "#F5CD19",
+                      showTick: true,
+                    },
+                    {
+                      color: "#EA4228",
+                    },
+                  ],
+                }}
+                value={rtuTorque}
+                minValue={-600}
+                maxValue={600}
+                labels={{
+                  valueLabel: { formatTextValue: (value) => value + "N/m" },
+                }}
+              />
+            </div>
           </div>
         </form>
       </div>

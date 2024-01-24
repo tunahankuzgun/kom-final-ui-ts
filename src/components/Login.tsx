@@ -37,7 +37,7 @@ export default function Login() {
       setLoading(true);
       axios
         .post(
-          "http://64.226.68.129:3333/v1/login",
+          "http://172.30.16.42:3333/v1/login",
           {
             email: values.email,
             password: values.password,

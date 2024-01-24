@@ -22,7 +22,7 @@ export function sendStartProgramRtu() {
 
 export function sendStartProgramTcp() {
   Ws.send("message", {
-    command: "start",
+    command: "run",
     value: {},
     connectionType: "tcp",
     accessToken: token,
